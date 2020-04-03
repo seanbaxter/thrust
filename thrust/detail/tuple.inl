@@ -304,13 +304,36 @@ template <class HT, class TT>
       tail (t2, t3, t4, t5, t6, t7, t8, t9, t10, static_cast<const null_type&>(null_type()))
       {}
 
-
+  __thrust_exec_check_disable__
   template <class HT2, class TT2>
   inline __host__ __device__
   cons( const cons<HT2, TT2>& u ) : head(u.head), tail(u.tail) {}
 
+  __thrust_exec_check_disable__
+  ~cons() {}
+
+  __thrust_exec_check_disable__
+  cons(const cons &u)
+    : head(u.head)
+    , tail(u.tail)
+  {
+  }
+
 #if THRUST_CPP_DIALECT >= 2011
-  cons(const cons &) = default;
+  __thrust_exec_check_disable__
+  cons(cons &&u)
+    : head(std::move(u.head))
+    , tail(std::move(u.tail))
+  {
+  }
+
+  __thrust_exec_check_disable__
+  cons& operator=(cons &&u)
+  {
+    head = std::move(u.head);
+    tail = std::move(u.tail);
+    return *this;
+  }
 #endif
 
   __thrust_exec_check_disable__
@@ -412,6 +435,7 @@ template <class HT>
        const null_type&, const null_type&, const null_type&)
   : head () {}
 
+  __thrust_exec_check_disable__
   template <class HT2>
   inline __host__ __device__
   cons( const cons<HT2, null_type>& u ) : head(u.head) {}

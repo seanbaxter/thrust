@@ -1,7 +1,13 @@
 #include <unittest/unittest.h>
-#include <thrust/tuple.h>
+
 #include <thrust/generate.h>
+#include <thrust/iterator/zip_iterator.h>
+#include <thrust/transform_scan.h>
+#include <thrust/tuple.h>
 #include <thrust/swap.h>
+
+#include <string>
+#include <vector>
 
 using namespace unittest;
 
@@ -491,4 +497,51 @@ void TestTupleSwap(void)
 }
 DECLARE_UNITTEST(TestTupleSwap);
 
+namespace
+{
 
+struct get_first_elem {
+  __thrust_exec_check_disable__
+  template <typename TupleT>
+  __host__ __device__
+  typename thrust::tuple_element<0, TupleT>::type
+  operator()(const TupleT& tuple) const
+  {
+    return thrust::get<0>(tuple);
+  }
+};
+
+} // namespace
+
+void TestTupleHostObject()
+{
+  // Test that thrust::tuple can be used with host-side objects (in this case,
+  // std::string)
+  { // Simple case:
+    thrust::tuple<std::string, std::string> host_tuple =
+      thrust::make_tuple("elem1", "elem2");
+
+    ASSERT_EQUAL("elem1", thrust::get<0>(host_tuple));
+    ASSERT_EQUAL("elem2", thrust::get<1>(host_tuple));
+  }
+
+  { // Test case from Github bug #1074
+    std::vector<std::string> v(3);
+    v[0] = "first";
+    v[1] = "second";
+    v[2] = "third";
+    std::vector<int> b(3, 10);
+    std::vector<std::string> output(3);
+
+    get_first_elem transform_op;
+    thrust::maximum<std::string> reduce_op;
+
+    thrust::transform_inclusive_scan(
+      thrust::make_zip_iterator(thrust::make_tuple(v.begin(), b.begin())),
+      thrust::make_zip_iterator(thrust::make_tuple(v.end(), b.end())),
+      output.begin(),
+      transform_op,
+      reduce_op);
+  }
+}
+DECLARE_UNITTEST(TestTupleHostObject);
