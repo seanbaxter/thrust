@@ -28,6 +28,8 @@
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_scan.h>
 
+#include <utility>
+
 namespace thrust
 {
 namespace system
@@ -82,21 +84,26 @@ struct inclusive_body
   template<typename Size> 
   void operator()(const ::tbb::blocked_range<Size>& r, ::tbb::final_scan_tag)
   {
-    InputIterator  iter1 = input  + r.begin();
-    OutputIterator iter2 = output + r.begin();
-
     if (first_call)
     {
-      *iter2 = sum = *iter1;
-      ++iter1;
-      ++iter2;
-      for (Size i = r.begin() + 1; i != r.end(); ++i, ++iter1, ++iter2)
-        *iter2 = sum = binary_op(sum, *iter1);
+      sum = input[r.begin()];
+      output[r.begin()] = sum;
+
+      for (Size i = r.begin() + 1; i < r.end(); ++i)
+      {
+        auto val = binary_op(sum, input[i]);
+        sum = val;
+        output[i] = std::move(val);
+      }
     }
     else
     {
-      for (Size i = r.begin(); i != r.end(); ++i, ++iter1, ++iter2)
-        *iter2 = sum = binary_op(sum, *iter1);
+      for (Size i = r.begin(); i < r.end(); ++i)
+      {
+        auto val = binary_op(sum, input[i]);
+        sum = val;
+        output[i] = std::move(val);
+      }
     }
 
     first_call = false;
