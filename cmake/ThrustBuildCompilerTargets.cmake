@@ -36,7 +36,7 @@ function(thrust_build_compiler_targets)
     # and spurious warnings are emitted.
     # See NVIDIA/thrust#1273, NVBug 3129879.
     if (CMAKE_BUILD_TYPE STREQUAL "Release")
-      append_option_if_available("/WX" cxx_compile_options)
+#      append_option_if_available("/WX" cxx_compile_options)
     endif()
 
     # Suppress overly-pedantic/unavoidable warnings brought in with /W4:
@@ -77,7 +77,7 @@ function(thrust_build_compiler_targets)
     # "Oh right, this is Visual Studio."
     list(APPEND cxx_compile_definitions "NOMINMAX")
   else()
-    append_option_if_available("-Werror" cxx_compile_options)
+#    append_option_if_available("-Werror" cxx_compile_options)
     append_option_if_available("-Wall" cxx_compile_options)
     append_option_if_available("-Wextra" cxx_compile_options)
     append_option_if_available("-Winit-self" cxx_compile_options)
@@ -156,9 +156,9 @@ function(thrust_build_compiler_targets)
 
   # This is kept separate for Github issue #1174.
   add_library(thrust.promote_cudafe_warnings INTERFACE)
-  target_compile_options(thrust.promote_cudafe_warnings INTERFACE
-    $<$<AND:$<COMPILE_LANGUAGE:CUDA>,$<CUDA_COMPILER_ID:NVIDIA>>:-Xcudafe=--promote_warnings>
-  )
+#  target_compile_options(thrust.promote_cudafe_warnings INTERFACE
+#    $<$<AND:$<COMPILE_LANGUAGE:CUDA>,$<CUDA_COMPILER_ID:NVIDIA>>:-Xcudafe=--promote_warnings>
+#  )
 
   # Some of our unit tests unconditionally throw exceptions, and compilers will
   # detect that the following instructions are unreachable. This is intentional
