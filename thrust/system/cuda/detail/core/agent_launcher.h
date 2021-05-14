@@ -42,7 +42,7 @@ namespace core {
 
 // The empty stubs in the else branch are a workaround for NVBug 2431416.
 // This usage of __CUDA_ARCH__ is necessary because that bug is NVCC specific.
-#if defined(__CUDA_ARCH__) || defined(__NVCOMPILER_CUDA__)
+#if defined(__CUDA_ARCH__) || defined(_NVHPC_CUDA)
   template <class Agent, class PtxPlan, class... Args>
    __global__ __launch_bounds__(PtxPlan::BLOCK_THREADS)
   void _kernel_agent(Args... args)
