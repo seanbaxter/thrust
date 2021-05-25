@@ -487,27 +487,40 @@ adjacent_difference(execution_policy<Derived> &policy,
                     OutputIt                   result,
                     BinaryOp                   binary_op)
 {
-  OutputIt ret = result;
-  if (__THRUST_HAS_CUDART__)
+  auto run_par = [&]() -> OutputIt {
+    return __adjacent_difference::adjacent_difference(policy,
+                                                      first,
+                                                      last,
+                                                      result,
+                                                      binary_op);
+  };
+
+#ifdef CUB_RUNTIME_ENABLED
+
+  return run_par();
+
+#else
+
+  auto run_seq = [&]() -> OutputIt {
+    return thrust::adjacent_difference(cvt_to_seq(derived_cast(policy)),
+                                       first,
+                                       last,
+                                       result,
+                                       binary_op);
+  };
+  (void)run_seq; // Unused on host
+
+  // run_par is unused on device, but we still need to compile the kernel in
+  // nvcc's device pass.
+  const bool runtime_false = (last < first);
+  if (runtime_false)
   {
-    ret = __adjacent_difference::adjacent_difference(policy,
-        first,
-        last,
-        result,
-        binary_op);
-  }
-  else
-  {
-#if !__THRUST_HAS_CUDART__
-    ret = thrust::adjacent_difference(cvt_to_seq(derived_cast(policy)),
-                                      first,
-                                      last,
-                                      result,
-                                      binary_op);
-#endif
+    run_par();
   }
 
-  return ret;
+  // Use sequential version if on device and CDP is disabled.
+  NV_IF_TARGET(NV_IS_DEVICE, (return run_seq();), (return run_par();));
+#endif
 }
 
 template <class Derived,
