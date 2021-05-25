@@ -89,7 +89,7 @@ namespace core {
     static constexpr std::size_t MAX_SHMEM_PER_BLOCK = 48 * 1024;
 
     template <class Size>
-    THRUST_RUNTIME_FUNCTION
+    CUB_RUNTIME_FUNCTION
     AgentLauncher(AgentPlan    plan_,
                   Size         count_,
                   cudaStream_t stream_,
@@ -109,7 +109,7 @@ namespace core {
     }
 
     template <class Size>
-    THRUST_RUNTIME_FUNCTION
+    CUB_RUNTIME_FUNCTION
     AgentLauncher(AgentPlan    plan_,
                   Size         count_,
                   cudaStream_t stream_,
@@ -129,7 +129,7 @@ namespace core {
       assert(count > 0);
     }
 
-    THRUST_RUNTIME_FUNCTION
+    CUB_RUNTIME_FUNCTION
     AgentLauncher(AgentPlan    plan_,
                   cudaStream_t stream_,
                   char const*  name_,
@@ -147,7 +147,7 @@ namespace core {
       assert(plan.grid_size > 0);
     }
 
-    THRUST_RUNTIME_FUNCTION
+    CUB_RUNTIME_FUNCTION
     AgentLauncher(AgentPlan    plan_,
                   cudaStream_t stream_,
                   char*        vshmem,
@@ -166,7 +166,7 @@ namespace core {
       assert(plan.grid_size > 0);
     }
 
-    THRUST_RUNTIME_FUNCTION
+    CUB_RUNTIME_FUNCTION
     void sync() const
     {
       if (debug_sync)
@@ -178,7 +178,7 @@ namespace core {
     }
 
     template <class K>
-    THRUST_RUNTIME_FUNCTION
+    CUB_RUNTIME_FUNCTION
     static cuda_optional<int> max_blocks_per_sm_impl(K k, int block_threads)
     {
       int occ;
@@ -187,7 +187,7 @@ namespace core {
     }
 
     template <class... Args>
-    THRUST_RUNTIME_FUNCTION
+    CUB_RUNTIME_FUNCTION
     static cuda_optional<int> get_max_blocks_per_sm(AgentPlan plan)
     {
       using tunings_t = typename Agent::Tunings;
@@ -202,14 +202,14 @@ namespace core {
     }
 
     template <class K>
-    THRUST_RUNTIME_FUNCTION
+    CUB_RUNTIME_FUNCTION
     cuda_optional<int> max_sm_occupancy(K k) const
     {
       return max_blocks_per_sm_impl(k, plan.block_threads);
     }
 
     template<class K>
-    THRUST_RUNTIME_FUNCTION
+    CUB_RUNTIME_FUNCTION
     void print_info(K k) const
     {
       if (debug_sync)
@@ -250,8 +250,8 @@ namespace core {
     // don't compile other kernel which accepts pointer
     // and save on compilations
     template <class PtxPlan, class... Args>
-    void THRUST_RUNTIME_FUNCTION
-    launch_impl(thrust::detail::true_type, PtxPlan, Args... args) const
+    CUB_RUNTIME_FUNCTION
+    void launch_impl(thrust::detail::true_type, PtxPlan, Args... args) const
     {
       assert(has_shmem && vshmem == NULL);
       auto kernel_ptr = _kernel_agent<Agent, PtxPlan, Args...>;
@@ -269,8 +269,8 @@ namespace core {
     // do actually have enough shared memory, the compilation time will double.
     //
     template <class PtxPlan, class... Args>
-    void THRUST_RUNTIME_FUNCTION
-    launch_impl(thrust::detail::false_type, PtxPlan, Args... args) const
+    CUB_RUNTIME_FUNCTION
+    void launch_impl(thrust::detail::false_type, PtxPlan, Args... args) const
     {
       assert((has_shmem && vshmem == NULL) ||
              (!has_shmem && vshmem != NULL && shmem_size == 0));
@@ -282,7 +282,7 @@ namespace core {
 
     /// Launches the kernel using the supplied PtxPlan.
     template <typename PtxPlan, typename... Args>
-    THRUST_RUNTIME_FUNCTION
+    CUB_RUNTIME_FUNCTION
     void launch_ptx_plan(PtxPlan, Args &&...args)
     {
       // From CUB commit c4c5d03683049cec8b60cb7781e873dfece43e17:
@@ -302,7 +302,7 @@ namespace core {
 
     /// Uses cub::detail::ptx_dispatch to launch the kernel.
     template <typename... Tunings, typename... Args>
-    THRUST_RUNTIME_FUNCTION
+    CUB_RUNTIME_FUNCTION
     void launch_ptx_dispatch(cub::detail::type_list<Tunings...>, Args &&...args)
     {
       using tunings_t           = cub::detail::type_list<Tunings...>;
@@ -321,7 +321,7 @@ namespace core {
       AgentLauncher& agent_launcher;
 
       template <typename Tuning, typename... Args>
-      THRUST_RUNTIME_FUNCTION
+      CUB_RUNTIME_FUNCTION
       void operator()(cub::detail::type_wrapper<Tuning>, Args &&...args)
       {
         using ptx_plan_t = typename Agent::template PtxPlan<Tuning>;
@@ -337,7 +337,7 @@ namespace core {
       cuda_optional<int> result{};
 
       template <typename Tuning, typename... Args>
-      THRUST_RUNTIME_FUNCTION
+      CUB_RUNTIME_FUNCTION
       void operator()(cub::detail::type_wrapper<Tuning>,
                       int block_threads,
                       cub::detail::type_list<Args...>)
