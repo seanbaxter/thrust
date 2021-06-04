@@ -1,28 +1,29 @@
+# The cmake tests currently only check the default system configuration of
+# host=CPP and device=CUDA. If either of these systems are not used by the
+# current build, skip cmake testing.
 thrust_update_system_found_flags()
+if (NOT THRUST_CPP_FOUND OR NOT THRUST_CUDA_FOUND)
+  return()
+endif()
 
-set(extra_cmake_flags)
-
-# Need to pass these when testing NVC++.
-if ("NVCXX" STREQUAL "${CMAKE_CUDA_COMPILER_ID}")
-  set(extra_cmake_flags
+# Setup a new CMake project with the same settings as the current build:
+set(test_cmake_configure_flags
+  --log-level=VERBOSE
+  -G "${CMAKE_GENERATOR}"
+  -D "ORIG_THRUST_SOURCE_DIR=${Thrust_SOURCE_DIR}"
+  -D "ORIG_THRUST_BINARY_DIR=${Thrust_BINARY_DIR}"
+  -D "CMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
+  -D "CMAKE_CUDA_COMPILER=${CMAKE_CUDA_COMPILER}"
+  -D "CMAKE_CUDA_HOST_COMPILER=${CMAKE_CUDA_HOST_COMPILER}"
+  -D "CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+)
+if (CMAKE_CUDA_COMPILER_ID STREQUAL "NVCXX")
+  list(APPEND test_cmake_configure_flags
     -D "CMAKE_CUDA_COMPILER_ID=${CMAKE_CUDA_COMPILER_ID}"
     -D "CMAKE_CUDA_COMPILER_FORCED=${CMAKE_CUDA_COMPILER_FORCED}"
   )
 endif()
 
-if (THRUST_CPP_FOUND AND THRUST_CUDA_FOUND)
-  # Test that we can use `find_package` on an installed Thrust:
-  add_test(
-    NAME thrust.test.cmake.test_install
-    COMMAND "${CMAKE_COMMAND}"
-      --log-level=VERBOSE
-      -G "${CMAKE_GENERATOR}"
-      -S "${CMAKE_CURRENT_SOURCE_DIR}/test_install"
-      -B "${CMAKE_CURRENT_BINARY_DIR}/test_install"
-      -D "THRUST_BINARY_DIR=${Thrust_BINARY_DIR}"
-      -D "CMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
-      -D "CMAKE_CUDA_COMPILER=${CMAKE_CUDA_COMPILER}"
-      -D "CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
-      ${extra_cmake_flags}
-  )
-endif()
+# Include testing stubs:
+include(test_install.cmake)
+include(test_shared_linking.cmake)

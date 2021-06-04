@@ -1,7 +1,7 @@
 # Test that an installation of the project can be located by find_package() call
 # with appropriate prefix settings.
 #
-# Expects THRUST_BINARY_DIR to be set to an existing thrust build directory.
+# Expects ORIG_THRUST_BINARY_DIR to be set to an existing thrust build directory.
 
 cmake_minimum_required(VERSION 3.15)
 
@@ -18,7 +18,7 @@ function(do_manual_install)
   # Gather all of the install files from Thrust's root:
   file(GLOB_RECURSE install_files
     LIST_DIRECTORIES False
-    "${THRUST_BINARY_DIR}/cmake_install.cmake"
+    "${ORIG_THRUST_BINARY_DIR}/cmake_install.cmake"
   )
 
   message(STATUS "Locating install files...")
