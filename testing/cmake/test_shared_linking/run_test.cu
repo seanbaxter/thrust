@@ -1,18 +1,22 @@
-#include "bar_lib.h"
-#include "foo_lib.h"
+#include "bar.h"
+#include "foo.h"
 
-#include <cstdint>
+#include <cstddef>
 #include <cstdio>
 #include <cstdlib>
 
 int main()
 {
-  std::size_t size{1024};
-  const auto foo_result = foo(size);
-  printf("foo: %d\n", foo_result);
-  const auto bar_result = bar(size);
-  printf("bar: %d\n", bar_result);
+  const std::size_t n{1024};
 
-  const bool result_valid = foo_result == 523776 && foo_result == bar_result;
-  return result_valid ? EXIT_SUCCESS : EXIT_FAILURE;
+  BarDerived bar;
+  const auto result = bar.run(n);
+
+  using result_t = decltype(result);
+  const auto expected_result = static_cast<result_t>(178433024);
+
+  printf("%s %d\n", "main:", result);
+  printf("%s %d\n", "expected:", result);
+
+  return result == expected_result ? EXIT_SUCCESS : EXIT_FAILURE;
 }
