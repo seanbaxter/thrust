@@ -10,7 +10,7 @@ int main()
   const std::size_t n{1024};
 
   BarDerived bar;
-  const auto result = bar.run(n);
+  const auto result = bar.run(n); // Call virtual function in bar
 
   using result_t = decltype(result);
   const auto expected_result = static_cast<result_t>(178433024);

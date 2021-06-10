@@ -6,6 +6,13 @@
 
 #include <cuda_runtime_api.h>
 
+extern void unused_gpu();
+
+void unused()
+{
+  unused_gpu(); // Defined in foo.cu
+}
+
 FooBase::~FooBase() = default;
 
 void FooBase::check(int result)
@@ -23,4 +30,7 @@ void FooBase::check(int result)
   }
 }
 
-int entry(FooBase &base, std::size_t n) { return base.run(n); }
+int entry(FooBase &base, std::size_t n)
+{
+  return base.run(n); // Only implementation is in bar.cpp
+}

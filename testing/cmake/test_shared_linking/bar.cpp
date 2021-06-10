@@ -11,7 +11,7 @@ BarDerived::~BarDerived() = default;
 
 int BarDerived::run(std::size_t n)
 {
-  const int result = run_gpu(n);
+  const int result = run_gpu(n); // Defined in bar.cu
 
   {
     const auto errCheck = cudaGetLastError();
@@ -25,7 +25,7 @@ int BarDerived::run(std::size_t n)
     }
   }
 
-  this->check(result);
+  this->check(result); // Defined in foo.cpp
 
   {
     const auto errCheck = cudaGetLastError();

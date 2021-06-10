@@ -4,6 +4,8 @@
 
 #include <cstddef>
 
+EXPORT void unused();
+
 struct EXPORT FooBase
 {
   virtual ~FooBase();
@@ -14,4 +16,3 @@ protected:
 };
 
 EXPORT int entry(FooBase&, std::size_t);
-EXPORT int unused();
