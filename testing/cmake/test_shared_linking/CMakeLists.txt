@@ -26,7 +26,7 @@ target_link_libraries(foo PRIVATE Thrust CUDA::cudart)
 add_library(bar SHARED bar.cu bar.cpp)
 target_link_libraries(bar PRIVATE Thrust CUDA::cudart foo)
 
-add_executable(run_test run_test.cu)
+add_executable(run_test run_test.cpp)
 target_link_libraries(run_test PRIVATE foo bar)
 
 enable_testing()
