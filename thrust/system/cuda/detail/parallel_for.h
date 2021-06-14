@@ -106,12 +106,12 @@ namespace __parallel_for {
       if (items_in_tile == ITEMS_PER_TILE)
       {
         // full tile
-        impl<ActivePtxPlan>::consume_tile<true>(f, tile_base, ITEMS_PER_TILE);
+        impl<ActivePtxPlan>::template consume_tile<true>(f, tile_base, ITEMS_PER_TILE);
       }
       else
       {
         // partial tile
-        impl<ActivePtxPlan>::consume_tile<false>(f, tile_base, items_in_tile);
+        impl<ActivePtxPlan>::template consume_tile<false>(f, tile_base, items_in_tile);
       }
     }
   };    // struct ParallelForAgent
